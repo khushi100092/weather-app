@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeatherPro | Real-Time Weather App</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+}
+
+.card{
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(15px);
+    border-radius:20px;
+    padding:40px;
+    width:350px;
+    text-align:center;
+    color:white;
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+    animation:fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(20px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+h1{
+    margin-bottom:20px;
+    font-weight:600;
+}
+
+.search-box{
+    display:flex;
+    margin-bottom:20px;
+}
+
+.search-box input{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:10px 0 0 10px;
+    outline:none;
+}
+
+.search-box button{
+    padding:10px 15px;
+    border:none;
+    background:#ffffff;
+    color:#764ba2;
+    font-weight:bold;
+    cursor:pointer;
+    border-radius:0 10px 10px 0;
+    transition:0.3s;
+}
+
+.search-box button:hover{
+    background:#ddd;
+}
+
+.weather img{
+    width:100px;
+    margin:10px 0;
+}
+
+.temp{
+    font-size:40px;
+    font-weight:600;
+}
+
+.details{
+    margin-top:15px;
+    font-size:14px;
+    opacity:0.9;
+}
+
+.error{
+    color:#ff4d4d;
+    margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h1>WeatherPro 🌤</h1>
+
+    <div class="search-box">
+        <input type="text" id="cityInput" placeholder="Enter city name">
+        <button onclick="getWeather()">Search</button>
+    </div>
+
+    <div class="weather" id="weatherResult"></div>
+</div>
+
+<script>
+async function getWeather() {
+    const city = document.getElementById("cityInput").value.trim();
+    const resultDiv = document.getElementById("weatherResult");
+
+    if(!city){
+        resultDiv.innerHTML = "<p class='error'>Please enter a city</p>";
+        return;
+    }
+
+    resultDiv.innerHTML = "Loading...";
+
+    try {
+        const response = await fetch(`/weather?city=${city}`);
+        const data = await response.json();
+
+        if(data.error){
+            resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+            return;
+        }
+
+        resultDiv.innerHTML = `
+            <h2>${data.name}, ${data.sys.country}</h2>
+            <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png">
+            <div class="temp">${data.main.temp}°C</div>
+            <div>${data.weather[0].description}</div>
+
+            <div class="details">
+                Feels Like: ${data.main.feels_like}°C <br>
+                Humidity: ${data.main.humidity}% <br>
+                Wind Speed: ${data.wind.speed} m/s
+            </div>
+        `;
+    } catch (error) {
+        resultDiv.innerHTML = "<p class='error'>Failed to fetch weather data</p>";
+    }
+}
+</script>
+
+</body>
+</html>
